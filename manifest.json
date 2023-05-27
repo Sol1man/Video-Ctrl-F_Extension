@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "Video-Ctrl-F",
+    "description": "Search for spoken or written text in videos",
+    "version": "1.0",
+    "action": {
+        "default_popup": "index.html"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "contentScript.js"
+            ]
+        }
+    ]
+}
