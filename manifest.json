@@ -3,6 +3,12 @@
     "name": "Video-Ctrl-F",
     "description": "Search for spoken or written text in videos",
     "version": "1.0",
+    "permissions": [
+        "tabs"
+    ],
+    "host_permissions": [
+        "https://*.youtube.com/*"
+    ],
     "action": {
         "default_popup": "index.html"
     },

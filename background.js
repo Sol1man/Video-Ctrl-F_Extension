@@ -1,23 +1,20 @@
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-    console.log("From background");
-    // const src = request["url"];
-    // const xhr = new XMLHttpRequest();
+console.log("background loaded")
 
-    // xhr.open("GET", "http://127.0.0.1:5000/");
-    // xhr.send(JSON.stringify({
-    //     "url": `${src}`
-    // }));
-    // xhr.responseType = "json";
-    // xhr.onload = () => {
-    //     if (xhr.readyState == 4 && xhr.status == 200) {
-    //         console.log("response: ", xhr.response);
-    //         sendResponse(xhr.response)
-    //     } else {
-    //         console.log("Error");
-    //         sendResponse("Error");
-    //     }
-    // }
-    const response = await fetch("http://127.0.0.1:5000/");
-    console.log(response.statusText);
-    // return true;
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    console.log("From background", message);
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(function (tabs) {
+        const tab = tabs[0];
+        const queryParameters = tab.url.split("?")[1];
+        const urlParameters = new URLSearchParams(queryParameters);
+        const videoURL = urlParameters.get("v");
+
+        console.log(videoURL);
+        fetch("http://127.0.0.1:5000/").then(function (response) {
+            return response.json();
+        }).then(function (data) {
+            sendResponse(data);
+        });
+    });
+
+    return true;
 });
