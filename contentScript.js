@@ -12,6 +12,10 @@ if (video) {
     xhr.onload = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             console.log(xhr.response);
+            chrome.runtime.sendMessage({
+                data: xhr.response
+            });
+
         } else {
             console.log("Error");
         }
