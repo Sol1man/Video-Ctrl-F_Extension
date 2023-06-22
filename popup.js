@@ -1,6 +1,8 @@
 console.log("popup loaded");
 
-const sendReqButton = document.getElementById('send_req')
+const sendReqButton = document.getElementById('send-req')
+const searchBar = document.getElementById('search-bar')
+const searchButton = document.getElementById('button-addon2')
 let data = null;
 
 (function() {
@@ -19,7 +21,30 @@ let data = null;
             console.log('Error:', error)
         })
     })
-})()
+})();
+
+searchButton.addEventListener('click', () => {
+    if (!data) {
+        return
+    }
+
+    const tbody = document.getElementById('t-body')
+    tbody.childNodes[0].remove()
+    
+    if (Object.keys(data).includes(searchBar.value)) {
+        console.log(searchBar.value)
+        const tr = document.createElement('tr')
+        tbody.appendChild(tr)
+        console.log(data[searchBar.value])
+        data[searchBar.value].forEach(timestamp => {
+            const td = document.createElement('td')
+            const textNode = document.createTextNode(timestamp)
+            td.appendChild(textNode)
+            tr.appendChild(td)
+        })
+    }
+
+})
 
 sendReqButton.addEventListener('click', () => {
     chrome.runtime.sendMessage({}).then(response => {
