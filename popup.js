@@ -13,7 +13,7 @@ let data = null;
                 return
             }
 
-            data = Object.values(result)[0]
+            data = JSON.parse(Object.values(result)[0])
             console.log('Data retrieved in popup:', data)
             sendReqButton.setAttribute('disabled', '')
         })
@@ -31,7 +31,9 @@ searchButton.addEventListener('click', () => {
     }
 
     const tbody = document.getElementById('t-body')
-    tbody.childNodes[0].remove()
+    if (tbody.childNodes[0]) {
+        tbody.childNodes[0].remove()
+    }
     
     if (Object.keys(data).includes(searchBar.value)) {
         console.log(searchBar.value)
