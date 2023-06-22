@@ -23,6 +23,8 @@ let data = null;
     })
 })();
 
+//TODO: search algorithm <3 :) ::::)
+
 searchButton.addEventListener('click', () => {
     if (!data) {
         return
