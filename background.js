@@ -15,8 +15,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 return response.json()
             })
             .then(data => {
-                chrome.storage.local.set({ [tab.url]: data })
-                sendResponse({ "TabURL": tab.url })
+                sendResponse(data)
             })
     });
 

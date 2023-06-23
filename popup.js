@@ -3,22 +3,38 @@ console.log("popup loaded");
 const sendReqButton = document.getElementById('send-req')
 const searchBar = document.getElementById('search-bar')
 const searchButton = document.getElementById('button-addon2')
-let data = null;
 
-(function() {
+const secToTimestamp = totalSeconds => {
+    const hours = Math.floor(totalSeconds / (60  * 60)).toString().padStart(2, 0)
+    const minutes = Math.floor((totalSeconds - (hours * 60 * 60)) / 60).toString().padStart(2, 0)
+    const seconds = (totalSeconds - ((hours * 60 * 60) + (minutes * 60))).toString().padStart(2, 0)
+
+
+    return `${hours}:${minutes}:${seconds}`
+}
+
+const timestampToText = timestamp => {
+    const [hours, minutes, secs] = timestamp.split(':')
+    return `${hours}h${minutes}m${secs}s`
+}
+
+let data = {};
+let videoId = null;
+
+(function () {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(tabs => {
-        const tab = tabs[0]
-        chrome.storage.local.get([tab.url]).then(result => {
-            if (!Object.values(result)[0]) {
-                return
-            }
+        const tab = tabs[0];
+        const queryParameters = tab.url.split("?")[1];
+        const urlParameters = new URLSearchParams(queryParameters);
+        const videoURL = urlParameters.get("v");
+        videoId = videoURL
 
-            data = JSON.parse(Object.values(result)[0])
-            console.log('Data retrieved in popup:', data)
+        chrome.storage.session.get([videoURL]).then(result => {
+            if (!Object.values(result)[0]) return
+
+            data = Object.values(result)[0][0]
+            console.log('Found data in session: ', data)
             sendReqButton.setAttribute('disabled', '')
-        })
-        .catch(error => {
-            console.log('Error:', error)
         })
     })
 })();
@@ -34,6 +50,8 @@ searchButton.addEventListener('click', () => {
     if (tbody.childNodes[0]) {
         tbody.childNodes[0].remove()
     }
+
+    // <td><a href="youtube.com/watch?v=${url}&t=${timestamp}"</a></td>
     
     if (Object.keys(data).includes(searchBar.value)) {
         console.log(searchBar.value)
@@ -42,8 +60,12 @@ searchButton.addEventListener('click', () => {
         console.log(data[searchBar.value])
         data[searchBar.value].forEach(timestamp => {
             const td = document.createElement('td')
+            const a = document.createElement('a')
             const textNode = document.createTextNode(timestamp)
-            td.appendChild(textNode)
+            a.appendChild(textNode)
+            a.setAttribute('href', `https://www.youtube.com/watch?v=${videoId}&t=${timestampToText(timestamp)}`)
+            a.setAttribute('target', '_parent')
+            td.appendChild(a)
             tr.appendChild(td)
         })
     }
@@ -53,10 +75,14 @@ searchButton.addEventListener('click', () => {
 sendReqButton.addEventListener('click', () => {
     chrome.runtime.sendMessage({}).then(response => {
         sendReqButton.setAttribute('disabled', '')
-        console.log(response)
+        console.log('Response from background: ', response)
 
-        chrome.storage.local.get([response.TabURL]).then(result => {
-            console.log('Result from local storage:', result)
+        const parsedResponse = JSON.parse(response.content)
+        Object.keys(parsedResponse).forEach(word => {
+            data[word] = parsedResponse[word].map(secs => secToTimestamp(secs))
         })
+
+        chrome.storage.session.set({ [response.ytId]: [data] })
+        console.log('Data: ', data)
     })
 })
