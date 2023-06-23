@@ -32,7 +32,7 @@ let videoId = null;
         chrome.storage.session.get([videoURL]).then(result => {
             if (!Object.values(result)[0]) return
 
-            data = Object.values(result)[0][0]
+            data = Object.values(result)[0]
             console.log('Found data in session: ', data)
             sendReqButton.setAttribute('disabled', '')
         })
@@ -58,13 +58,22 @@ searchButton.addEventListener('click', () => {
         const tr = document.createElement('tr')
         tbody.appendChild(tr)
         console.log(data[searchBar.value])
-        data[searchBar.value].forEach(timestamp => {
+        data[searchBar.value].forEach(secs => {
+            const timestamp = secToTimestamp(secs)
             const td = document.createElement('td')
             const a = document.createElement('a')
             const textNode = document.createTextNode(timestamp)
             a.appendChild(textNode)
+
             a.setAttribute('href', `https://www.youtube.com/watch?v=${videoId}&t=${timestampToText(timestamp)}`)
-            a.setAttribute('target', '_parent')
+            a.addEventListener('click', event => {
+                event.preventDefault()
+
+                chrome.runtime.sendMessage({
+                    secs
+                })
+            })
+    
             td.appendChild(a)
             tr.appendChild(td)
         })
@@ -77,12 +86,9 @@ sendReqButton.addEventListener('click', () => {
         sendReqButton.setAttribute('disabled', '')
         console.log('Response from background: ', response)
 
-        const parsedResponse = JSON.parse(response.content)
-        Object.keys(parsedResponse).forEach(word => {
-            data[word] = parsedResponse[word].map(secs => secToTimestamp(secs))
-        })
+        data = JSON.parse(response.content)
 
-        chrome.storage.session.set({ [response.ytId]: [data] })
+        chrome.storage.session.set({ [response.ytId]: JSON.parse(response.content) })
         console.log('Data: ', data)
     })
 })

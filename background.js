@@ -5,6 +5,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("From background", message);
     chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(tabs => {
         const tab = tabs[0];
+        if (message.secs) {
+            chrome.tabs.sendMessage(tab.id, { secs: message.secs })
+            return
+        }
         const queryParameters = tab.url.split("?")[1];
         const urlParameters = new URLSearchParams(queryParameters);
         const videoURL = urlParameters.get("v");
