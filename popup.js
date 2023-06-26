@@ -1,8 +1,8 @@
 console.log("popup loaded");
 
-const sendReqButton = document.getElementById('send-req')
+const sendReqButton = document.getElementById('start-button')
 const searchBar = document.getElementById('search-bar')
-const searchButton = document.getElementById('button-addon2')
+const searchButton = document.getElementById('search-button')
 
 const secToTimestamp = totalSeconds => {
     const hours = Math.floor(totalSeconds / (60  * 60)).toString().padStart(2, 0)

@@ -14,7 +14,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const videoURL = urlParameters.get("v");
         console.log(videoURL);
         console.log(tab.url)
-        fetch(`http://localhost:3001/fetch?url=${tab.url}`)
+        fetch(`http://localhost:3001/fetch?ytId=${videoURL}`)
             .then(response => {
                 return response.json()
             })
