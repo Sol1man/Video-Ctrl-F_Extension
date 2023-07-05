@@ -3,12 +3,13 @@ console.log("popup loaded");
 const sendReqButton = document.getElementById('start-button')
 const searchBar = document.getElementById('search-bar')
 const searchButton = document.getElementById('search-button')
+const outputArea = document.getElementsByClassName('output')[0]
+const loader = document.getElementsByClassName('loader')[0]
 
 const secToTimestamp = totalSeconds => {
     const hours = Math.floor(totalSeconds / (60  * 60)).toString().padStart(2, 0)
     const minutes = Math.floor((totalSeconds - (hours * 60 * 60)) / 60).toString().padStart(2, 0)
     const seconds = (totalSeconds - ((hours * 60 * 60) + (minutes * 60))).toString().padStart(2, 0)
-
 
     return `${hours}:${minutes}:${seconds}`
 }
@@ -30,6 +31,7 @@ let videoId = null;
         videoId = videoURL
 
         chrome.storage.session.get([videoURL]).then(result => {
+            loader.remove()
             if (!Object.values(result)[0]) return
 
             data = Object.values(result)[0]
@@ -81,8 +83,17 @@ searchButton.addEventListener('click', () => {
 
 })
 
+searchBar.addEventListener('keypress', event => {
+    if (event.key === 'Enter') {
+        event.preventDefault()
+        searchButton.click()
+    }
+})
+
 sendReqButton.addEventListener('click', () => {
+    loader.style.visibility = 'visible'
     chrome.runtime.sendMessage({}).then(response => {
+        loader.remove()
         sendReqButton.setAttribute('disabled', '')
         console.log('Response from background: ', response)
 

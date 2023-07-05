@@ -4,6 +4,17 @@
     background-color: #181818;
 }
 
+::-webkit-scrollbar {
+    width: 12px;
+    height: 8px;
+    background-color: #323232;
+}
+  
+::-webkit-scrollbar-thumb {
+    background: grey;
+    border-radius: 5px;
+}
+
 .container .header {
     display: grid;
     grid-template-columns: 1fr 5fr 2fr;
@@ -60,22 +71,29 @@
 
 .container .output {
     padding: 10px 10px;
-    border: 1px solid gray;
-    height: 30px;
+    height: 45px;
     color: white;
     border-radius: 10px;
-    overflow: hidden;
-
+    overflow: auto;
+    scrollbar-color: calc()
 }
 
-.container .output .timestamp {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+.container .output table #t-body tr {
+    display: flex;
 }
 
-.container .output #t-body {
-    color: chocolate;
+.container .output table #t-body tr td {
+    margin-right: 15px;
+}
+
+.container .output #t-body tr td a {
+    color: #04AA6D;
     text-decoration: none;
+    font-size: 1.2em
+}
+
+.container .output #t-body tr td a:hover {
+    color: #038656;
 }
 
 button[disabled=disabled],
@@ -84,4 +102,34 @@ button:disabled {
     color: white;
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+button:disabled:hover {
+    background-color: #04AA6D;
+    color: white;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loader {
+    margin: 0 auto 0 auto;
+    border: 6px solid #181818;
+    border-radius: 50%;
+    border-top: 6px solid #04AA6D;
+    width: 25px;
+    height: 25px;
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 2s linear infinite;
+    visibility: hidden;
+}
+  
+/* Safari */
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+  }
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
