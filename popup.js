@@ -31,8 +31,8 @@ let videoId = null;
         videoId = videoURL
 
         chrome.storage.session.get([videoURL]).then(result => {
-            loader.remove()
             if (!Object.values(result)[0]) return
+            loader.remove()
 
             data = Object.values(result)[0]
             console.log('Found data in session: ', data)
@@ -54,33 +54,53 @@ searchButton.addEventListener('click', () => {
     }
 
     // <td><a href="youtube.com/watch?v=${url}&t=${timestamp}"</a></td>
-    
-    if (Object.keys(data).includes(searchBar.value)) {
-        console.log(searchBar.value)
-        const tr = document.createElement('tr')
-        tbody.appendChild(tr)
-        console.log(data[searchBar.value])
-        data[searchBar.value].forEach(secs => {
-            const timestamp = secToTimestamp(secs)
-            const td = document.createElement('td')
-            const a = document.createElement('a')
-            const textNode = document.createTextNode(timestamp)
-            a.appendChild(textNode)
-
-            a.setAttribute('href', `https://www.youtube.com/watch?v=${videoId}&t=${timestampToText(timestamp)}`)
-            a.addEventListener('click', event => {
-                event.preventDefault()
-
-                chrome.runtime.sendMessage({
-                    secs
-                })
-            })
-    
-            td.appendChild(a)
-            tr.appendChild(td)
-        })
+    const softIntersection = (initArr, arrays) => {
+        if (arrays.length === 0) {
+          return initArr
+        }
+      
+        const intersection = initArr.filter(v => arrays[0].includes(v))
+        const newInit = intersection.length === 0 ? initArr : intersection
+        arrays.shift()
+        return softIntersection(newInit, arrays)
     }
+      
+    const searchWords = searchBar.value.toLowerCase().trim().match(/\w+/g)
+    const secsArr = searchWords.map(word => {
+        if (Object.keys(data).includes(word)) {
+            return data[word]
+        } else {
+            return []
+        }
+    })
 
+    const initArr = secsArr[0]
+    secsArr.shift()
+    const intersection = softIntersection(initArr, secsArr)
+
+    const tr = document.createElement('tr')
+    tbody.appendChild(tr)
+
+    const sortedSecs = intersection.sort((a, b) => a - b)
+    sortedSecs.forEach(secs => {
+        const timestamp = secToTimestamp(secs)
+        const td = document.createElement('td')
+        const a = document.createElement('a')
+        const textNode = document.createTextNode(timestamp)
+        a.appendChild(textNode)
+
+        a.setAttribute('href', `https://www.youtube.com/watch?v=${videoId}&t=${timestampToText(timestamp)}`)
+        a.addEventListener('click', event => {
+            event.preventDefault()
+
+            chrome.runtime.sendMessage({
+                secs
+            })
+        })
+
+        td.appendChild(a)
+        tr.appendChild(td)
+    })
 })
 
 searchBar.addEventListener('keypress', event => {
